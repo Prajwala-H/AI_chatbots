@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Movie Characters</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f9ff;
+        }
+        .chat-bubble {
+            position: relative;
+            max-width: 80%;
+            margin: 8px;
+            padding: 12px 20px;
+            border-radius: 20px;
+        }
+        .user-message {
+            background-color: #0ea5e9;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+        .character-message {
+            background-color: #e2e8f0;
+            color: #1e293b;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 20px;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <div class="bg-white rounded-2xl shadow-xl p-4 md:p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-2xl font-bold text-slate-800">Chat with Movie Characters</h1>
+                <select id="characterSelect" class="px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    <option value="iron_man">Iron Man</option>
+                    <option value="jack_sparrow">Jack Sparrow</option>
+                    <option value="hermione">Hermione Granger</option>
+                    <option value="yoda">Yoda</option>
+                </select>
+            </div>
+
+            <div id="chatMessages" class="h-[400px] md:h-[500px] overflow-y-auto mb-4 p-4 bg-slate-50 rounded-xl">
+                <!-- Messages will appear here -->
+            </div>
+
+            <div class="flex gap-2">
+                <input type="text" id="messageInput" 
+                    class="flex-1 px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    placeholder="Type your message...">
+                <button onclick="sendMessage()" 
+                    class="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-xl transition-colors">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const characterSelect = document.getElementById('characterSelect');
+
+        // Simulated character responses (in a real app, these would come from an API)
+        const characterResponses = {
+            iron_man: [
+                "I am Iron Man. Did you expect someone else?",
+                "Sometimes you gotta run before you can walk.",
+                "I'm a genius, billionaire, playboy, philanthropist. What's your story?",
+            ],
+            jack_sparrow: [
+                "Why is the rum always gone?",
+                "This is the day you will always remember as the day you almost caught Captain Jack Sparrow!",
+                "The problem is not the problem. The problem is your attitude about the problem.",
+            ],
+            hermione: [
+                "It's LeviOsa, not LevioSA!",
+                "I've read about this in Hogwarts: A History.",
+                "We could all have been killed - or worse, expelled!",
+            ],
+            yoda: [
+                "Do or do not, there is no try.",
+                "Size matters not. Look at me. Judge me by my size, do you?",
+                "Much to learn, you still have.",
+            ]
+        };
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-bubble ${isUser ? 'user-message' : 'character-message'}`;
+            messageDiv.textContent = content;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator character-message';
+            typingDiv.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return typingDiv;
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, true);
+            messageInput.value = '';
+
+            // Show typing indicator
+            const typingIndicator = showTypingIndicator();
+
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Remove typing indicator
+            typingIndicator.remove();
+
+            // Get character response
+            const character = characterSelect.value;
+            const responses = characterResponses[character];
+            const response = responses[Math.floor(Math.random() * responses.length)];
+            
+            // Add character response
+            addMessage(response);
+        }
+
+        // Handle enter key
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Initial greeting
+        addMessage("Hello! I'm ready to chat. Choose your character and send a message!");
+    </script>
+</body>
+</html>
